@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordRPCTool", "DiscordRPCTool.csproj", "{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Test|Any CPU = Test|Any CPU
+		Test|x64 = Test|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Debug|x64.ActiveCfg = Debug|x64
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Debug|x64.Build.0 = Debug|x64
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Release|x64.ActiveCfg = Release|x64
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Release|x64.Build.0 = Release|x64
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Test|Any CPU.ActiveCfg = Test|Any CPU
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Test|Any CPU.Build.0 = Test|Any CPU
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Test|x64.ActiveCfg = Test|x64
+		{5A6B3DCA-3429-443C-B3C9-B5459BB9DF4F}.Test|x64.Build.0 = Test|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E6C19061-1D79-4732-91EB-86617DBB515E}
+	EndGlobalSection
+EndGlobal
