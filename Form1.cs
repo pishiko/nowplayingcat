@@ -18,6 +18,12 @@ using System.Runtime.InteropServices;
 
 namespace DiscordRPCTool
 {
+    enum CATIMAGE
+    {
+        black=0,
+        headphone=1,
+        dance=2
+    }
 
     public partial class Form1 : Form
     {
@@ -38,27 +44,60 @@ namespace DiscordRPCTool
         private RichPresence sleepRPC;
         private bool IsExit = false;
 
-        private void LoadSetting()
+        private bool LoadSetting()
         {
             var path = Application.StartupPath;
-            var ini = new IniFile(path+"\\settings.ini");
 
-            var section = "config";
-            CLIENT_ID = ini.GetString(section, "DiscordClientId","");
-            SleepImageKey = ini.GetString(section, "SleepImageKey", "");
-            PlayingImageKey = ini.GetString(section, "PlayingImageKey", "");
-            LastFmAPIKey = ini.GetString(section, "LastFmAPIKey", "");
-            LastFmUserName = ini.GetString(section, "LastFmUserName", "");
+            CLIENT_ID = "707972898274541629";
+            SleepImageKey = "cat_zzz";
+            LastFmAPIKey = Properties.Settings.Default.LastFmAPIKey;
+            LastFmUserName = Properties.Settings.Default.LastFmUserName;
 
-            if(CLIENT_ID=="" || LastFmAPIKey=="" || LastFmUserName == "")
+            switch (Properties.Settings.Default.CatImageIndex)
             {
-                MessageBox.Show("settings.iniの設定が不正です。終了します。",
+                case (int)CATIMAGE.headphone:
+                    PlayingImageKey = "cat_music";
+                    break;
+
+                case (int)CATIMAGE.dance:
+                    PlayingImageKey = "cat_dance";
+                    break;
+
+                default:
+                    PlayingImageKey = "cat_dev";
+                    break;
+            }
+
+            if (LastFmAPIKey == "" || LastFmUserName == "")
+            {
+
+                var result = MessageBox.Show("Last.fm APIキー，ユーザーネームの設定をしてください。",
                     "エラー",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                IsExit = true;
-                Environment.Exit(0);
+
+                if(result == DialogResult.OK)
+                {
+                    if (FormSetting == null || FormSetting.IsDisposed)
+                    {
+                        FormSetting = new Form2();
+                        FormSetting.Show();
+                    }
+                    else
+                    {
+                        FormSetting.Activate();
+                    }
+                    return false;
+
+                }
+                else
+                {
+                    IsExit = true;
+                    Environment.Exit(0);
+
+                }
             }
+            return true;
         }
 
         private void InitDiscord()
@@ -87,31 +126,31 @@ namespace DiscordRPCTool
 
             client.Logger = new ConsoleLogger() { Level = LogLevel.Warning };
 
-            client.OnReady += (sender, e) =>
-            {
-                //Debug.WriteLine("Received Ready from user {0}", e.User.Username);
-            };
-            client.OnPresenceUpdate += (sender, e) =>
-            {
-                //Debug.WriteLine("Received Update {0}",e.Presence.Details);
-            };
-            client.OnJoinRequested += (sender, e) =>
-            {
-                Debug.WriteLine("##JOINREQUEST {0}", e.User);
-                client.Respond(e, true);
-            };
+            //client.OnReady += (sender, e) =>
+            //{
+            //    //Debug.WriteLine("Received Ready from user {0}", e.User.Username);
+            //};
+            //client.OnPresenceUpdate += (sender, e) =>
+            //{
+            //    //Debug.WriteLine("Received Update {0}",e.Presence.Details);
+            //};
+            //client.OnJoinRequested += (sender, e) =>
+            //{
+            //    Debug.WriteLine("##JOINREQUEST {0}", e.User);
+            //    client.Respond(e, true);
+            //};
 
-            client.RegisterUriScheme(executable: $"rundll32.exe url.dll,FileProtocolHandler \"https://www.google.co.jp/\"");
+            //client.RegisterUriScheme(executable: $"rundll32.exe url.dll,FileProtocolHandler \"https://www.google.co.jp/\"");
 
             client.Initialize();
-            client.Subscribe(EventType.JoinRequest);
+            //client.Subscribe(EventType.JoinRequest);
             client.SetPresence(sleepRPC);
         }
 
+        private Form2 FormSetting = null;
         public Form1()
         {
-            LoadSetting();
-
+            var isLoaded = LoadSetting();
             //タスクバーから消す
             this.ShowInTaskbar = false;
 
@@ -119,21 +158,32 @@ namespace DiscordRPCTool
             NotifyIcon icon = new NotifyIcon();
             icon.Icon = Resource.rpclogo;
             icon.Visible = true;
-            icon.Text = "DiscordRPCTool";
+            icon.Text = "Discord_Lastfm";
             ContextMenuStrip menu = new ContextMenuStrip();
-            ToolStripMenuItem menuItem = new ToolStripMenuItem();
-            menuItem.Text = "&Exit";
-            menuItem.Click += new EventHandler(Close_Click);
-            menu.Items.Add(menuItem);
+
+            ToolStripMenuItem menuItemExit = new ToolStripMenuItem();
+            menuItemExit.Text = "&Exit";
+            menuItemExit.Click += new EventHandler(Close_Click);
+            menu.Items.Add(menuItemExit);
+
+            ToolStripMenuItem menuItemSetting = new ToolStripMenuItem();
+            menuItemSetting.Text = "&Setting";
+            menuItemSetting.Click += new EventHandler(Setting_Click);
+            menu.Items.Add(menuItemSetting);
+
             icon.ContextMenuStrip = menu;
 
             InitializeComponent();
 
 
+            if (isLoaded)
+            {
+                InitDiscord();
+                timer1.Tick += new EventHandler(timer1_Tick);
+                timer1.Enabled = true;
 
-            InitDiscord();
-            timer1.Tick += new EventHandler(timer1_Tick);
-            timer1.Enabled = true;
+            }
+
         }
 
         private void Close_Click(object sender, EventArgs e)
@@ -143,33 +193,70 @@ namespace DiscordRPCTool
 
         ~Form1()
         {
-            if (!IsExit)
+            if (!IsExit && client!=null)
             {
                 client.Dispose();
 
             }
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void Setting_Click(object sender, EventArgs e)
+        {
+            if (FormSetting == null || FormSetting.IsDisposed)
+            {
+                FormSetting = new Form2();
+                FormSetting.Show();
+            }
+            else
+            {
+                FormSetting.Activate();
+            }
+        }
+
+        public static void SetStartUp()
+        {
+            //Runキーを開く
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Run", true);
+            //値の名前に製品名、値のデータに実行ファイルのパスを指定し、書き込む
+            regkey.SetValue(Application.ProductName, Application.ExecutablePath);
+            //閉じる
+            regkey.Close();
+        }
+
+        public static void RemoveStartUp()
+        {
+            //Runキーを開く
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.CreateSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Run", true);
+
+            regkey.DeleteValue(Application.ProductName,false);
+
+            //閉じる
+            regkey.Close();
+        }
+            private async void timer1_Tick(object sender, EventArgs e)
         {
             
             //truck
-            var track = GetCurrentTrack();
+            var track = await GetCurrentTrack();
             if (track.IsNowPlaying)
             {
                 if (track.Song != LastSongName)
                 {
                     //uri
                     var now = DateTime.Now.ToString();
-                    client.RegisterUriScheme(executable: $"rundll32.exe url.dll,FileProtocolHandler {track.URL}".Replace("%","%%").Replace("/music/","/ja/music/"));
+                    //client.RegisterUriScheme(executable: $"rundll32.exe url.dll,FileProtocolHandler {track.URL}".Replace("%","%%").Replace("/music/","/ja/music/"));
                     Debug.WriteLine($"{track.URL}");
 
                     var h = track.Album == "" ? "" : " - ";
                     var state = $"{track.Artist}{h}{track.Album}";
                     client.SetPresence(new RichPresence()
                     {
-                        State = state,
-                        Details = $"🎵{track.Song}",
+                        State = CutString(128,state),
+                        Details = CutString(128,$"🎵{track.Song}"),
                         Assets = new Assets()
                         {
                             LargeImageKey = PlayingImageKey, // Larger Image Asset Key
@@ -181,14 +268,14 @@ namespace DiscordRPCTool
                         //,
                         //    Start = track.UTime,
                         //},
-                        Secrets = new Secrets()
-                        {
-                            JoinSecret = "SECRET"+now,
-                        },
+                        //Secrets = new Secrets()
+                        //{
+                        //    JoinSecret = "SECRET"+now,
+                        //},
                         Party = new Party()
                         {
                             ID = "ID"+now,
-                            Max = 127,
+                            Max = 1,
                             Size = 1,
                         }
                     });
@@ -196,12 +283,13 @@ namespace DiscordRPCTool
             }
             else
             {
-                client.SetPresence(sleepRPC);
+                //client.SetPresence(sleepRPC);
+                client.ClearPresence();
             }
             LastSongName = track.Song;
         }
 
-        private Status GetCurrentTrack()
+        private async Task<Status> GetCurrentTrack()
         {
             var parameters = new Dictionary<string, string>()
             {
@@ -214,10 +302,20 @@ namespace DiscordRPCTool
             };
 
             string result;
-            using(var client = new HttpClient())
+            try
             {
-                var response = client.GetAsync($"http://ws.audioscrobbler.com/2.0/?{new FormUrlEncodedContent(parameters).ReadAsStringAsync().Result}").Result;
-                result = response.Content.ReadAsStringAsync().Result;
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetAsync($"http://ws.audioscrobbler.com/2.0/?{new FormUrlEncodedContent(parameters).ReadAsStringAsync().Result}");
+                    //.Result;
+                    result = response.Content.ReadAsStringAsync().Result;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                var st = new Status();
+                st.IsNowPlaying = false;
+                return st;
             }
             dynamic json = JObject.Parse(result.Replace("#text","text").Replace("@attr","attr"));
             //Debug.WriteLine(json);
@@ -239,6 +337,13 @@ namespace DiscordRPCTool
             }
             return ret;
         }
+
+        private string CutString(int size,string text)
+        {
+            Encoding e = Encoding.GetEncoding("Shift_JIS");
+            return new String(text.TakeWhile((c, i) => e.GetByteCount(text.Substring(0, i + 1)) <= size).ToArray());
+            
+        }
     }
 
     public class Status
@@ -251,58 +356,4 @@ namespace DiscordRPCTool
         public string URL { get; set; }
     }
 
-    /// <summary>
-    /// Ini ファイルの読み書きを扱うクラスです。
-    /// https://knooto.info/csharp-ini/ を参考にさせて頂きました。
-    /// </summary>
-    public class IniFile
-    {
-        [DllImport("kernel32.dll")]
-        private static extern uint GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, StringBuilder lpReturnedString, uint nSize, string lpFileName);
-
-        [DllImport("kernel32.dll")]
-        private static extern uint GetPrivateProfileInt(string lpAppName, string lpKeyName, int nDefault, string lpFileName);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool WritePrivateProfileString(string lpAppName, string lpKeyName, string lpString, string lpFileName);
-
-        /// <summary>
-        /// Ini ファイルのファイルパスを取得、設定します。
-        /// </summary>
-        public string FilePath { get; set; }
-
-        /// <summary>
-        /// インスタンスを初期化します。
-        /// </summary>
-        /// <param name="filePath">Ini ファイルのファイルパス</param>
-        public IniFile(string filePath)
-        {
-            FilePath = filePath;
-        }
-        /// <summary>
-        /// Ini ファイルから文字列を取得します。
-        /// </summary>
-        /// <param name="section">セクション名</param>
-        /// <param name="key">項目名</param>
-        /// <param name="defaultValue">値が取得できない場合の初期値</param>
-        /// <returns></returns>
-        public string GetString(string section, string key, string defaultValue = "")
-        {
-            var sb = new StringBuilder(1024);
-            var r = GetPrivateProfileString(section, key, defaultValue, sb, (uint)sb.Capacity, FilePath);
-            return sb.ToString();
-        }
-        /// <summary>
-        /// Ini ファイルに文字列を書き込みます。
-        /// </summary>
-        /// <param name="section">セクション名</param>
-        /// <param name="key">項目名</param>
-        /// <param name="value">書き込む値</param>
-        /// <returns></returns>
-        public bool WriteString(string section, string key, string value)
-        {
-            return WritePrivateProfileString(section, key, value, FilePath);
-        }
-    }
 }
