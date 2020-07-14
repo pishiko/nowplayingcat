@@ -146,5 +146,7 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
-
-.gitconfig
+/.vs/DiscordRPCTool/v15/Server/sqlite3/storage.ide-wal
+/.vs/DiscordRPCTool/v15/Server/sqlite3/storage.ide-shm
+/.vs/DiscordRPCTool/v15/Server/sqlite3/storage.ide
+/.vs/DiscordRPCTool/v15/Server/sqlite3/db.lock
