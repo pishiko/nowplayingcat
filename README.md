@@ -1,4 +1,4 @@
-# discord-nowplaying
+# NowPlayingCat
 
 <img width="187" alt="dis" src="https://user-images.githubusercontent.com/42219754/81476502-36ef2200-924d-11ea-905c-cceef949ed70.png">
 
