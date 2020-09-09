@@ -340,7 +340,7 @@ namespace DiscordRPCTool
 
         private string CutString(int size,string text)
         {
-            Encoding e = Encoding.GetEncoding("Shift_JIS");
+            Encoding e = Encoding.GetEncoding("UTF-8");
             return new String(text.TakeWhile((c, i) => e.GetByteCount(text.Substring(0, i + 1)) <= size).ToArray());
             
         }
